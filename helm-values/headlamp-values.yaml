@@ -1,0 +1,14 @@
+ingress:
+  enabled: true
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: headlamp.homelab.local
+      paths:
+        - path: /
+          type: ImplementationSpecific
+  tls:
+    - secretName: homelab-tls
+      hosts:
+        - headlamp.homelab.local

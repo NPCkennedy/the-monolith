@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"longhorn-ingress","namespace":"longhorn-system"},"spec":{"ingressClassName":"traefik","rules":[{"host":"longhorn.homelab.local","http":{"paths":[{"backend":{"service":{"name":"longhorn-frontend","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}]}}
+  creationTimestamp: "2026-05-03T11:38:04Z"
+  generation: 1
+  name: longhorn-ingress
+  namespace: longhorn-system
+  resourceVersion: "21281"
+  uid: 5dc00cfc-b0ff-4ff3-af0c-7d871385b098
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: longhorn.homelab.local
+    http:
+      paths:
+      - backend:
+          service:
+            name: longhorn-frontend
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.0.104
+    - ip: 192.168.0.105

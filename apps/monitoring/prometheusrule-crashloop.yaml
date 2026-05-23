@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"monitoring.coreos.com/v1","kind":"PrometheusRule","metadata":{"annotations":{},"labels":{"release":"monitoring"},"name":"crashloop-alert","namespace":"monitoring"},"spec":{"groups":[{"name":"pod-alerts","rules":[{"alert":"PodCrashLooping","annotations":{"description":"Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted more than 3 times in 10 minutes","summary":"Pod {{ $labels.pod }} is crash looping"},"expr":"increase(kube_pod_container_status_restarts_total[10m]) \u003e 3","for":"1m","labels":{"severity":"critical"}}]}]}}
+    prometheus-operator-validated: "true"
+  creationTimestamp: "2026-05-09T04:05:37Z"
+  generation: 1
+  labels:
+    release: monitoring
+  name: crashloop-alert
+  namespace: monitoring
+  resourceVersion: "599873"
+  uid: a23c15b5-1574-495b-b56e-1e3943583db7
+spec:
+  groups:
+  - name: pod-alerts
+    rules:
+    - alert: PodCrashLooping
+      annotations:
+        description: Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has
+          restarted more than 3 times in 10 minutes
+        summary: Pod {{ $labels.pod }} is crash looping
+      expr: increase(kube_pod_container_status_restarts_total[10m]) > 3
+      for: 1m
+      labels:
+        severity: critical

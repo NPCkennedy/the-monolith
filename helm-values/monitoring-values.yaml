@@ -1,0 +1,68 @@
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+grafana:
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 1Gi
+
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: ntfy
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      routes:
+        - receiver: ntfy
+          matchers:
+            - alertname != "Watchdog"
+    receivers:
+      - name: ntfy
+        webhook_configs:
+          - url: 'http://192.168.0.102:8080/homelab-alerts?template=alertmanager'
+            send_resolved: true
+            http_config:
+              follow_redirects: true
+            max_alerts: 0
+      - name: "null"
+    templates:
+      - '/etc/alertmanager/config/*.tmpl'
+  templateFiles:
+    ntfy.tmpl: |-
+      {{ define "ntfy.title" }}{{ .CommonLabels.alertname }}{{ end }}
+
+      {{ define "ntfy.message" }}
+      {{- if eq .Status "firing" -}}
+      🚨 FIRING — {{ .CommonAnnotations.description }}
+      {{- else -}}
+      ✅ RESOLVED — {{ .CommonAnnotations.description }}
+      {{- end }}
+      {{ end }}
+
+      {{ define "ntfy.tags" }}
+      {{- if eq .Status "firing" -}}
+      {{- if eq .CommonLabels.severity "critical" -}}rotating_light{{- else -}}warning{{- end -}}
+      {{- else -}}
+      white_check_mark
+      {{- end }}
+      {{ end }}
+
+      {{ define "ntfy.priority" }}
+      {{- if eq .Status "firing" -}}
+      {{- if eq .CommonLabels.severity "critical" -}}urgent{{- else -}}high{{- end -}}
+      {{- else -}}
+      default
+      {{- end }}
+      {{ end }}

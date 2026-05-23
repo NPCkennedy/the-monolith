@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"grafana-ingress","namespace":"monitoring"},"spec":{"ingressClassName":"traefik","rules":[{"host":"grafana.homelab.local","http":{"paths":[{"backend":{"service":{"name":"monitoring-grafana","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["grafana.homelab.local"],"secretName":"homelab-tls"}]}}
+  creationTimestamp: "2026-05-09T04:00:32Z"
+  generation: 1
+  name: grafana-ingress
+  namespace: monitoring
+  resourceVersion: "625329"
+  uid: 0668cc40-c8fc-46a6-b3b4-606967f15653
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: grafana.homelab.local
+    http:
+      paths:
+      - backend:
+          service:
+            name: monitoring-grafana
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - grafana.homelab.local
+    secretName: homelab-tls
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.0.104
+    - ip: 192.168.0.105

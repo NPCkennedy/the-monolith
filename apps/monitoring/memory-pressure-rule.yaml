@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: memory-pressure
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: memory
+      rules:
+        - alert: NodeMemoryWarning
+          expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 30
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node memory warning"
+            description: "{{ $labels.instance }} has less than 30% memory available"
+
+        - alert: NodeMemoryCritical
+          expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node memory critical"
+            description: "{{ $labels.instance }} has less than 15% memory available"

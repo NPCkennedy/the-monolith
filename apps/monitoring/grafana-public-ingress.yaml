@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"grafana-public-ingress","namespace":"monitoring"},"spec":{"ingressClassName":"traefik","rules":[{"host":"grafana.spencer-kennedy.com","http":{"paths":[{"backend":{"service":{"name":"monitoring-grafana","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}]}}
+  creationTimestamp: "2026-05-09T05:35:25Z"
+  generation: 1
+  name: grafana-public-ingress
+  namespace: monitoring
+  resourceVersion: "606719"
+  uid: 28d773c2-60e0-44da-aa22-6891d3d0eb9d
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: grafana.spencer-kennedy.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: monitoring-grafana
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.0.104
+    - ip: 192.168.0.105

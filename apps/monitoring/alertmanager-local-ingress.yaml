@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"alertmanager-ingress","namespace":"monitoring"},"spec":{"ingressClassName":"traefik","rules":[{"host":"alertmanager.homelab.local","http":{"paths":[{"backend":{"service":{"name":"alertmanager-operated","port":{"number":9093}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["alertmanager.homelab.local"],"secretName":"homelab-tls"}]}}
+  creationTimestamp: "2026-05-09T04:04:38Z"
+  generation: 1
+  name: alertmanager-ingress
+  namespace: monitoring
+  resourceVersion: "625331"
+  uid: 46441f20-87d0-4265-9a50-5282b369d75e
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: alertmanager.homelab.local
+    http:
+      paths:
+      - backend:
+          service:
+            name: alertmanager-operated
+            port:
+              number: 9093
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - alertmanager.homelab.local
+    secretName: homelab-tls
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.0.104
+    - ip: 192.168.0.105
