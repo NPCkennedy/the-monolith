@@ -22,7 +22,7 @@ spec:
         - name: DOMAIN
           value: https://vaultwarden.homelab.local
         - name: SIGNUPS_ALLOWED
-          value: "true"
+          value: "false"
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
