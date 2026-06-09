@@ -12,7 +12,7 @@ This repo is the ArgoCD source of truth for all Kubernetes workloads. Every serv
 
 ![THE MONOLITH Network Topology](docs/topology.png)
 
-**Network (Phase 6):**
+**Network:**
 Three isolated VLANs behind a pfSense firewall, enforcing default-deny between segments. Same model as Azure VNet/subnet/NSG — just running on a $20 managed switch.
 
 ```
