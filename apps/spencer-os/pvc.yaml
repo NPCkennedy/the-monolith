@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hermes-data
+  namespace: spencer-os
+  labels:
+    # Binds this volume to the daily Longhorn snapshot RecurringJob group.
+    # (Also settable in the Longhorn UI — see README. Confirm the label
+    #  format matches your Longhorn version.)
+    recurring-job-group.longhorn.io/spencer-os: enabled
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn   # confirm this matches your default Longhorn class name
+  resources:
+    requests:
+      storage: 20Gi

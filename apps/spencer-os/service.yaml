@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes
+  namespace: spencer-os
+  labels:
+    app: hermes
+spec:
+  type: ClusterIP            # never LoadBalancer/NodePort — stays internal
+  selector:
+    app: hermes
+  ports:
+    - name: gateway
+      port: 8642
+      targetPort: 8642

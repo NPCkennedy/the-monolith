@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hermes
+  namespace: spencer-os
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`spencer-os.homelab.local`)
+      kind: Rule
+      services:
+        - name: hermes
+          port: 8642
+  tls:
+    secretName: homelab-local-tls
+# Reachable internally and via Tailscale at https://spencer-os.homelab.local
+# Requires: homelab-local-tls secret copied into spencer-os namespace (see README)
+# Requires: pfSense DNS override spencer-os -> homelab.local -> 192.168.20.10
