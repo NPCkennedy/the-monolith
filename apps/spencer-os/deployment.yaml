@@ -19,15 +19,29 @@ spec:
     spec:
       containers:
         - name: hermes
-          # Pin the version. Do NOT use :latest — Hermes is pre-1.0 and ships
-          # breaking changes weekly. Bump deliberately after reading release notes.
-          image: nousresearch/hermes-agent:0.15.2
+          image: nousresearch/hermes-agent:latest
+          command: ["gateway", "run"]
           ports:
             - containerPort: 8642
               name: gateway
-          # No env vars needed for the API key.
-          # Hermes reads credentials from ~/.hermes/.env (on the PVC).
-          # Set the key after first deploy: see README step 3.
+            - containerPort: 9119
+              name: dashboard
+          env:
+            - name: HERMES_DASHBOARD
+              value: "1"
+            # Trusted LAN + Tailscale only — skip OAuth gate on dashboard
+            - name: HERMES_DASHBOARD_INSECURE
+              value: "1"
+            # Optional: pre-populate API key via K8s secret.
+            # Create with: kubectl -n spencer-os create secret generic hermes-provider \
+            #   --from-literal=OPENROUTER_API_KEY=sk-or-your-key
+            # Pod starts without the secret too — set key via hermes config set after deploy.
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-provider
+                  key: OPENROUTER_API_KEY
+                  optional: true
           resources:
             requests:
               cpu: "250m"
@@ -37,7 +51,7 @@ spec:
               memory: "2Gi"
           volumeMounts:
             - name: data
-              mountPath: /home/node/.hermes   # everything stateful lives here
+              mountPath: /opt/data   # all Hermes state lives here
           readinessProbe:
             tcpSocket:
               port: 8642

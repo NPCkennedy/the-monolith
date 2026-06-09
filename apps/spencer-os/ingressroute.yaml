@@ -11,9 +11,9 @@ spec:
       kind: Rule
       services:
         - name: hermes
-          port: 8642
+          port: 9119    # dashboard — the day-to-day interface
   tls:
     secretName: homelab-local-tls
-# Reachable internally and via Tailscale at https://spencer-os.homelab.local
-# Requires: homelab-local-tls secret copied into spencer-os namespace (see README)
+# Reachable at https://spencer-os.homelab.local (internal + Tailscale)
+# Requires: homelab-local-tls copied into spencer-os namespace (see README)
 # Requires: pfSense DNS override spencer-os -> homelab.local -> 192.168.20.10
