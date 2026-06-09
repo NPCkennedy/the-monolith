@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: spencer-os
+  labels:
+    app: hermes
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate          # single RWO volume — never run two pods against it
+  selector:
+    matchLabels:
+      app: hermes
+  template:
+    metadata:
+      labels:
+        app: hermes
+    spec:
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent:latest
+          command: ["gateway", "run"]
+          ports:
+            - containerPort: 8642
+              name: gateway
+            - containerPort: 9119
+              name: dashboard
+          env:
+            - name: HERMES_DASHBOARD
+              value: "1"
+            # Trusted LAN + Tailscale only — skip OAuth gate on dashboard
+            - name: HERMES_DASHBOARD_INSECURE
+              value: "1"
+            # Optional: pre-populate API key via K8s secret.
+            # Create with: kubectl -n spencer-os create secret generic hermes-provider \
+            #   --from-literal=OPENROUTER_API_KEY=sk-or-your-key
+            # Pod starts without the secret too — set key via hermes config set after deploy.
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-provider
+                  key: OPENROUTER_API_KEY
+                  optional: true
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data   # all Hermes state lives here
+          readinessProbe:
+            tcpSocket:
+              port: 8642
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8642
+            initialDelaySeconds: 30
+            periodSeconds: 20
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
