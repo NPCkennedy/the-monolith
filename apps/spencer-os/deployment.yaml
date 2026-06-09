@@ -32,6 +32,9 @@ spec:
             # Trusted LAN + Tailscale only — skip OAuth gate on dashboard
             - name: HERMES_DASHBOARD_INSECURE
               value: "1"
+            # Single-user personal install — allow access without platform allowlist
+            - name: GATEWAY_ALLOW_ALL_USERS
+              value: "true"
             # Optional: pre-populate API key via K8s secret.
             # Create with: kubectl -n spencer-os create secret generic hermes-provider \
             #   --from-literal=OPENROUTER_API_KEY=sk-or-your-key
@@ -54,13 +57,13 @@ spec:
               mountPath: /opt/data   # all Hermes state lives here
           readinessProbe:
             tcpSocket:
-              port: 8642
-            initialDelaySeconds: 15
+              port: 9119
+            initialDelaySeconds: 20
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
-              port: 8642
-            initialDelaySeconds: 30
+              port: 9119
+            initialDelaySeconds: 40
             periodSeconds: 20
       volumes:
         - name: data
