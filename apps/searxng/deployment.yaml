@@ -19,6 +19,18 @@ spec:
         app: searxng
         app.kubernetes.io/part-of: searxng
     spec:
+      # Prevents K8s injecting SEARXNG_PORT=tcp://... which breaks SearXNG's
+      # port argument parsing
+      enableServiceLinks: false
+      initContainers:
+        - name: copy-settings
+          image: busybox
+          command: ["sh", "-c", "cp /searxng-config/settings.yml /etc/searxng/settings.yml && chmod 644 /etc/searxng/settings.yml"]
+          volumeMounts:
+            - name: settings-source
+              mountPath: /searxng-config
+            - name: settings-writable
+              mountPath: /etc/searxng
       containers:
         - name: searxng
           image: searxng/searxng:latest
@@ -29,9 +41,8 @@ spec:
             - name: SEARXNG_BASE_URL
               value: "https://searxng.homelab.local/"
           volumeMounts:
-            - name: settings
-              mountPath: /etc/searxng/settings.yml
-              subPath: settings.yml
+            - name: settings-writable
+              mountPath: /etc/searxng
           resources:
             requests:
               cpu: "100m"
@@ -52,6 +63,8 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 20
       volumes:
-        - name: settings
+        - name: settings-source
           configMap:
             name: searxng-settings
+        - name: settings-writable
+          emptyDir: {}
