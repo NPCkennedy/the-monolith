@@ -24,8 +24,9 @@ spec:
       enableServiceLinks: false
       containers:
         - name: graphiti-mcp
-          # Pin a known version — Graphiti is pre-1.0, breaking changes likely
-          image: zepai/graphiti-mcp:latest
+          # The real image name is zepai/knowledge-graph-mcp (not graphiti-mcp).
+          # Pinned version — graphiti is pre-1.0, breaking changes likely on bumps.
+          image: zepai/knowledge-graph-mcp:1.0.1-graphiti-0.23.1
           ports:
             - containerPort: 8000
               name: mcp
