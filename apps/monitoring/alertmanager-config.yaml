@@ -37,7 +37,7 @@ stringData:
           follow_redirects: true
         max_alerts: 0
         send_resolved: true
-        url: http://192.168.30.10:8080/homelab-alerts?template=alertmanager
+        url: https://ntfy.sh/spencer-monolith-skt?template=alertmanager
     - name: "null"
     route:
       group_by:
