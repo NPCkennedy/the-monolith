@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: k3s-false-positive-silences
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: k3s-silences
+    rules:
+    - alert: KubeControllerManagerDown
+      expr: "false"
+    - alert: KubeProxyDown
+      expr: "false"
+    - alert: KubeSchedulerDown
+      expr: "false"
