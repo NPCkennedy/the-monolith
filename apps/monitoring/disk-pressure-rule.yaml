@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: disk-pressure
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: disk
+    rules:
+    - alert: DiskPressureWarning
+      annotations:
+        description: Available disk is below 20% on {{ $labels.instance }}
+        summary: Disk pressure warning on {{ $labels.instance }}
+      expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+      for: 2m
+      labels:
+        severity: warning
+    - alert: DiskPressureCritical
+      annotations:
+        description: Available disk is below 10% on {{ $labels.instance }}
+        summary: Disk pressure critical on {{ $labels.instance }}
+      expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+      for: 2m
+      labels:
+        severity: critical
