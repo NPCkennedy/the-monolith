@@ -48,6 +48,9 @@ stringData:
       repeat_interval: 12h
       routes:
       - matchers:
+        - alertname = "InfoInhibitor"
+        receiver: "null"
+      - matchers:
         - alertname != "Watchdog"
         receiver: ntfy
     templates:
