@@ -36,8 +36,8 @@ stringData:
       - http_config:
           follow_redirects: true
         max_alerts: 1
-    	send_resolved: true
-    	url: https://ntfy.sh/spencer-monolith-skt?template=alertmanager
+        send_resolved: true
+        url: https://ntfy.sh/spencer-monolith-skt?template=alertmanager
     - name: "null"
     route:
       group_by:
@@ -48,7 +48,7 @@ stringData:
       repeat_interval: 12h
       routes:
       - matchers:
-        - alertname = "InfoInhibitor"
+        - alertname =~ "InfoInhibitor|Watchdog"
         receiver: "null"
       - matchers:
         - alertname != "Watchdog"
