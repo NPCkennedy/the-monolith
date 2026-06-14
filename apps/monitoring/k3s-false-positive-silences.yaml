@@ -15,3 +15,5 @@ spec:
       expr: "false"
     - alert: KubeSchedulerDown
       expr: "false"
+    - alert: KubeDaemonSetMisScheduled
+      expr: "false"
