@@ -3,13 +3,11 @@ kind: Application
 metadata:
   name: traefik
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    repoURL: https://github.com/NPKennedy/the-monolith.git
-    targetRevision: main
+    repoURL: https://github.com/NPKennedy/the-monolith
+    targetRevision: HEAD
     path: apps/traefik
   destination:
     server: https://kubernetes.default.svc
@@ -18,5 +16,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true

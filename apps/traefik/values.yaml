@@ -1,16 +1,47 @@
 deployment:
-  replicas: 1
+  podAnnotations:
+    prometheus.io/port: "8082"
+    prometheus.io/scrape: "true"
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
+priorityClassName: "system-cluster-critical"
+
+image:
+  repository: "traefik"
+  tag: "3.7.1"
+
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
 
 service:
   type: LoadBalancer
-  ipFamilyPolicy: PreferDualStack
+  labels: {}
+  annotations: {}
+  spec:
+    externalTrafficPolicy: Cluster
+  loadBalancerIP: ""
 
-ingressClass:
-  enabled: true
-  isDefaultClass: true
+ports:
+  web:
+    port: 80
+    exposedPort: 80
+    nodePort: 30409
+  websecure:
+    port: 443
+    exposedPort: 443
+    nodePort: 30900
+    tls:
+      enabled: true
 
-logs:
-  general:
-    level: INFO
-
-globalArguments: []
+tlsStore:
+  default:
+    defaultCertificate:
+      secretName: spencer-kennedy-tls

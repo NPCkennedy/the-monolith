@@ -1,6 +1,7 @@
 apiVersion: v2
-name: traefik
-version: 37.1.0
+name: traefik-argocd
+version: 1.0.0
+description: Traefik managed by ArgoCD
 dependencies:
   - name: traefik
     version: "37.1.0"
