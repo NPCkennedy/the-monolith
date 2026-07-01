@@ -1,0 +1,16 @@
+deployment:
+  replicas: 1
+
+service:
+  type: LoadBalancer
+  ipFamilyPolicy: PreferDualStack
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+logs:
+  general:
+    level: INFO
+
+globalArguments: []
