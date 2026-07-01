@@ -23,11 +23,18 @@ tolerations:
 
 service:
   type: LoadBalancer
-  labels: {}
-  annotations: {}
   spec:
     externalTrafficPolicy: Cluster
-  loadBalancerIP: ""
+  ports:
+    web:
+      port: 80
+      nodePort: 30409
+    websecure:
+      port: 443
+      nodePort: 30900
+      tls:
+        enabled: true
+
 
 ports:
   web:
