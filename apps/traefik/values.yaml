@@ -7,7 +7,6 @@ providers:
   kubernetesIngress:
     publishedService:
       enabled: true
-    allowCrossNamespaceResources: true
   kubernetesCRD:
     allowCrossNamespaceResources: true
 
