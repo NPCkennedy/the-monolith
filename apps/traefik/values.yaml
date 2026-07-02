@@ -52,3 +52,7 @@ tlsStore:
   default:
     defaultCertificate:
       secretName: spencer-kennedy-tls
+
+helm:
+      valueFiles:
+        - values.yaml
