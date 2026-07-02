@@ -5,10 +5,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/NPCKennedy/the-monolith
-    targetRevision: HEAD
-    path: apps/traefik
+  sources:
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 37.1.0
+      helm:
+        valueFiles:
+          - $values/apps/traefik/values.yaml
+    - repoURL: https://github.com/NPCkennedy/the-monolith
+      targetRevision: HEAD
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
