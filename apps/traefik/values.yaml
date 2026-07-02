@@ -7,6 +7,9 @@ providers:
   kubernetesIngress:
     publishedService:
       enabled: true
+    allowCrossNamespaceResources: true
+  kubernetesCRD:
+    allowCrossNamespaceResources: true
 
 priorityClassName: "system-cluster-critical"
 
@@ -56,3 +59,4 @@ tlsStore:
 helm:
       valueFiles:
         - values.yaml
+
