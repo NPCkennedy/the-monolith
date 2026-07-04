@@ -29,22 +29,24 @@ spec:
           env:
             - name: HERMES_DASHBOARD
               value: "1"
-            # Trusted LAN + Tailscale only — skip OAuth gate on dashboard
-            - name: HERMES_DASHBOARD_INSECURE
-              value: "1"
-            # Single-user personal install — allow access without platform allowlist
             - name: GATEWAY_ALLOW_ALL_USERS
               value: "true"
-            # Optional: pre-populate API key via K8s secret.
-            # Create with: kubectl -n spencer-os create secret generic hermes-provider \
-            #   --from-literal=OPENROUTER_API_KEY=sk-or-your-key
-            # Pod starts without the secret too — set key via hermes config set after deploy.
             - name: OPENROUTER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: hermes-provider
                   key: OPENROUTER_API_KEY
                   optional: true
+            - name: HERMES_DASHBOARD_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-auth
+                  key: username
+            - name: HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-auth
+                  key: password
           resources:
             requests:
               cpu: "250m"
