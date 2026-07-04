@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/cert-manager/cert-manager
+    path: releases
+    targetRevision: v1.20.3
+    directory:
+      include: 'cert-manager.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
