@@ -9,7 +9,7 @@ alertmanager:
           follow_redirects: true
         max_alerts: 0
         send_resolved: true
-        url: http://192.168.0.102:8080/homelab-alerts?template=alertmanager
+        url: http://ntfy.monitoring.svc.cluster.local/spencer-monolith-skt?template=alertmanager
     - name: "null"
     route:
       group_interval: 5m
