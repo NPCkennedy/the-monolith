@@ -1,0 +1,82 @@
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    receivers:
+    - name: ntfy
+      webhook_configs:
+      - http_config:
+          follow_redirects: true
+        max_alerts: 0
+        send_resolved: true
+        url: http://192.168.0.102:8080/homelab-alerts?template=alertmanager
+    - name: "null"
+    route:
+      group_interval: 5m
+      group_wait: 30s
+      receiver: ntfy
+      repeat_interval: 12h
+      routes:
+      - matchers:
+        - alertname != "Watchdog"
+        receiver: ntfy
+    templates:
+    - /etc/alertmanager/config/*.tmpl
+  templateFiles:
+    ntfy.tmpl: "{{ define \"ntfy.title\" }}{{ .CommonLabels.alertname }}{{ end }}\n\n{{
+      define \"ntfy.message\" }}\n{{- if eq .Status \"firing\" -}}\n\U0001F6A8 FIRING
+      — {{ .CommonAnnotations.description }}\n{{- else -}}\n✅ RESOLVED — {{ .CommonAnnotations.description
+      }}\n{{- end }}\n{{ end }}\n\n{{ define \"ntfy.tags\" }}\n{{- if eq .Status \"firing\"
+      -}}\n{{- if eq .CommonLabels.severity \"critical\" -}}rotating_light{{- else
+      -}}warning{{- end -}}\n{{- else -}}\nwhite_check_mark\n{{- end }}\n{{ end }}\n\n{{
+      define \"ntfy.priority\" }}\n{{- if eq .Status \"firing\" -}}\n{{- if eq .CommonLabels.severity
+      \"critical\" -}}urgent{{- else -}}high{{- end -}}\n{{- else -}}\ndefault\n{{-
+      end }}\n{{ end }}"
+grafana:
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClassName: longhorn
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: longhorn
+# k3s-disable-rules.values.yaml
+# Disables kube-prometheus-stack rules that fire falsely on single-node
+# k3s + sqlite. Applied via helm upgrade --reuse-values (next step).
+defaultRules:
+  disabled:
+    # k3s embeds these — no standalone pods, so Down/Unreachable is false
+    KubeControllerManagerDown: true
+    KubeControllerManagerInstanceUnreachable: true
+    KubeSchedulerDown: true
+    KubeSchedulerInstanceUnreachable: true
+    KubeProxyDown: true
+    KubeProxyInstanceUnreachable: true
+    # k3s uses SQLite, not etcd — every etcd alert is a false positive
+    etcdMembersDown: true
+    etcdInsufficientMembers: true
+    etcdNoLeader: true
+    etcdHighNumberOfLeaderChanges: true
+    etcdHighNumberOfFailedProposals: true
+    etcdHighFsyncDurations: true
+    etcdHighCommitDurations: true
+    etcdDatabaseQuotaLowSpace: true
+    etcdExcessiveDatabaseGrowth: true
+    etcdDatabaseHighFragmentationRatio: true
+    etcdGRPCRequestsSlow: true
+    etcdHighNumberOfFailedGRPCRequests: true
+    etcdMemberCommunicationSlow: true
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

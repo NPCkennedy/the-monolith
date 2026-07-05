@@ -1,0 +1,26 @@
+# k3s-disable-rules.values.yaml
+# Disables kube-prometheus-stack rules that fire falsely on single-node
+# k3s + sqlite. Applied via helm upgrade --reuse-values (next step).
+defaultRules:
+  disabled:
+    # k3s embeds these — no standalone pods, so Down/Unreachable is false
+    KubeControllerManagerDown: true
+    KubeControllerManagerInstanceUnreachable: true
+    KubeSchedulerDown: true
+    KubeSchedulerInstanceUnreachable: true
+    KubeProxyDown: true
+    KubeProxyInstanceUnreachable: true
+    # k3s uses SQLite, not etcd — every etcd alert is a false positive
+    etcdMembersDown: true
+    etcdInsufficientMembers: true
+    etcdNoLeader: true
+    etcdHighNumberOfLeaderChanges: true
+    etcdHighNumberOfFailedProposals: true
+    etcdHighFsyncDurations: true
+    etcdHighCommitDurations: true
+    etcdDatabaseQuotaLowSpace: true
+    etcdExcessiveDatabaseGrowth: true
+    etcdDatabaseHighFragmentationRatio: true
+    etcdGRPCRequestsSlow: true
+    etcdHighNumberOfFailedGRPCRequests: true
+    etcdMemberCommunicationSlow: true
