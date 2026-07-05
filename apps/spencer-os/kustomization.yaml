@@ -9,6 +9,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml
+  - rbac/hermes-reader.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: spencer-os
