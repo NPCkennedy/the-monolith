@@ -32,11 +32,40 @@ alertmanager:
       define \"ntfy.priority\" }}\n{{- if eq .Status \"firing\" -}}\n{{- if eq .CommonLabels.severity
       \"critical\" -}}urgent{{- else -}}high{{- end -}}\n{{- else -}}\ndefault\n{{-
       end }}\n{{ end }}"
+defaultRules:
+  disabled:
+    KubeControllerManagerDown: true
+    KubeControllerManagerInstanceUnreachable: true
+    KubeProxyDown: true
+    KubeProxyInstanceUnreachable: true
+    KubeSchedulerDown: true
+    KubeSchedulerInstanceUnreachable: true
+    etcdDatabaseHighFragmentationRatio: true
+    etcdDatabaseQuotaLowSpace: true
+    etcdExcessiveDatabaseGrowth: true
+    etcdGRPCRequestsSlow: true
+    etcdHighCommitDurations: true
+    etcdHighFsyncDurations: true
+    etcdHighNumberOfFailedGRPCRequests: true
+    etcdHighNumberOfFailedProposals: true
+    etcdHighNumberOfLeaderChanges: true
+    etcdInsufficientMembers: true
+    etcdMemberCommunicationSlow: true
+    etcdMembersDown: true
+    etcdNoLeader: true
 grafana:
+  deploymentStrategy:
+    type: Recreate
   persistence:
     enabled: true
     size: 1Gi
     storageClassName: longhorn
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
 prometheus:
   prometheusSpec:
     storageSpec:
@@ -48,35 +77,3 @@ prometheus:
             requests:
               storage: 10Gi
           storageClassName: longhorn
-# k3s-disable-rules.values.yaml
-# Disables kube-prometheus-stack rules that fire falsely on single-node
-# k3s + sqlite. Applied via helm upgrade --reuse-values (next step).
-defaultRules:
-  disabled:
-    # k3s embeds these — no standalone pods, so Down/Unreachable is false
-    KubeControllerManagerDown: true
-    KubeControllerManagerInstanceUnreachable: true
-    KubeSchedulerDown: true
-    KubeSchedulerInstanceUnreachable: true
-    KubeProxyDown: true
-    KubeProxyInstanceUnreachable: true
-    # k3s uses SQLite, not etcd — every etcd alert is a false positive
-    etcdMembersDown: true
-    etcdInsufficientMembers: true
-    etcdNoLeader: true
-    etcdHighNumberOfLeaderChanges: true
-    etcdHighNumberOfFailedProposals: true
-    etcdHighFsyncDurations: true
-    etcdHighCommitDurations: true
-    etcdDatabaseQuotaLowSpace: true
-    etcdExcessiveDatabaseGrowth: true
-    etcdDatabaseHighFragmentationRatio: true
-    etcdGRPCRequestsSlow: true
-    etcdHighNumberOfFailedGRPCRequests: true
-    etcdMemberCommunicationSlow: true
-kubeControllerManager:
-  enabled: false
-kubeScheduler:
-  enabled: false
-kubeProxy:
-  enabled: false
