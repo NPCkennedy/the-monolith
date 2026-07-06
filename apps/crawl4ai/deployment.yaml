@@ -38,14 +38,16 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
+            failureThreshold: 6
           livenessProbe:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
             periodSeconds: 30
+            failureThreshold: 3
         - name: mcp-proxy
           image: alpine/socat:latest
           args: ["TCP-LISTEN:11235,fork,reuseaddr", "TCP:127.0.0.1:11235"]
