@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawl4ai
+  namespace: spencer-os
+  labels:
+    app: crawl4ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawl4ai
+  template:
+    metadata:
+      labels:
+        app: crawl4ai
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: crawl4ai
+          image: unclecode/crawl4ai:latest
+          imagePullPolicy: Always
+          env:
+            - name: CRAWL4AI_API_TOKEN
+              value: "spencer-crawl4ai-2026"
+            - name: REDIS_PASSWORD
+              value: "redis-spencer-2026"
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+        - name: mcp-proxy
+          image: alpine/socat:latest
+          args: ["TCP-LISTEN:11235,fork,reuseaddr", "TCP:127.0.0.1:11235"]
+          ports:
+            - containerPort: 11235
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "50m"
+              memory: "32Mi"
