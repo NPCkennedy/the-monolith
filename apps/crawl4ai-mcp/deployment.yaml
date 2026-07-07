@@ -28,7 +28,7 @@ spec:
                       - k3s-worker2
       containers:
         - name: crawl4ai-mcp
-          image: ghcr.io/npckennedy/crawl4ai-mcp:0.7.1
+          image: ghcr.io/npckennedy/crawl4ai-mcp:0.7.1-nodns
           ports:
             - containerPort: 8000
               name: http
