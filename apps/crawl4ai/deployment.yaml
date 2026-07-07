@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawl4ai
+  namespace: spencer-os
+  labels:
+    app: crawl4ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawl4ai
+  template:
+    metadata:
+      labels:
+        app: crawl4ai
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-worker2
+      containers:
+        - name: crawl4ai
+          image: unclecode/crawl4ai:latest  
+          ports:
+            - containerPort: 11235
+              name: http
+          env:
+            
+            - name: CRAWL4AI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: crawl4ai-secret
+                  key: api_token
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 2Gi        
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm 
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 11235
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi         
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crawl4ai
+  namespace: spencer-os
+  labels:
+    app: crawl4ai
+spec:
+  selector:
+    app: crawl4ai
+  ports:
+    - port: 11235
+      targetPort: 11235
+      name: http
