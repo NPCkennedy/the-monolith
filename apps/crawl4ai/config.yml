@@ -58,7 +58,7 @@ rate_limiting:
 #   - Set SECRET_KEY environment variable to a secure random value
 #   - Set CRAWL4AI_HOOKS_ENABLED=true only if you need hooks (RCE risk)
 security:
-  enabled: true
+  enabled: false
   jwt_enabled: false
   api_token: ""  # When set, /token endpoint requires this secret to issue JWTs
   https_redirect: false
@@ -76,7 +76,7 @@ crawler:
     simulate_user: true
   memory_threshold_percent: 95.0
   rate_limiter:
-    enabled: true
+    enabled: false
     base_delay: [1.0, 2.0]
   timeouts:
     stream_init: 30.0  # Timeout for stream initialization
@@ -121,7 +121,7 @@ observability:
 
 # Webhook Configuration
 webhooks:
-  enabled: true
+  enabled: false
   default_url: null  # Optional: default webhook URL for all jobs
   data_in_payload: false  # Optional: default behavior for including data
   retry:
