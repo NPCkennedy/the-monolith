@@ -33,7 +33,8 @@ spec:
             - containerPort: 11235
               name: http
           env:
-            
+            - name: HOST
+              value: "0.0.0.0"
             - name: CRAWL4AI_API_TOKEN
               valueFrom:
                 secretKeyRef:
