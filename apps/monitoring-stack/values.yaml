@@ -62,6 +62,8 @@ grafana:
     storageClassName: longhorn
 kubeControllerManager:
   enabled: false
+kubeEtcd:
+  enabled: false
 kubeProxy:
   enabled: false
 kubeScheduler:
