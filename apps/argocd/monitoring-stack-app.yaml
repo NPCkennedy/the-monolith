@@ -22,7 +22,9 @@ spec:
         valueFiles:
           - $values/apps/monitoring-stack/values.yaml
   syncPolicy:
-    # No automated block on purpose — manual sync only until adoption is proven.
+    automated:
+      prune: true
+      selfHeal: false
     syncOptions:
       - ServerSideApply=true
       - RespectIgnoreDifferences=true
