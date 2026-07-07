@@ -40,6 +40,11 @@ spec:
           env:
             - name: SEARXNG_BASE_URL
               value: "https://searxng.homelab.local/"
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: searxng-secret
+                  key: secret_key
           volumeMounts:
             - name: settings-writable
               mountPath: /etc/searxng

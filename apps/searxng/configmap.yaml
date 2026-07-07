@@ -18,7 +18,7 @@ data:
       limiter: false
       image_proxy: false
       # Generate a real secret: python3 -c "import secrets; print(secrets.token_hex(32))"
-      secret_key: "03935621c38befe16093d717721da68ad9283db61b2cb26315f2e71f555ed5bb"
+      secret_key: "$SEARXNG_SECRET"
 
     search:
       # JSON format MUST be listed here — without it Hermes gets 403 on every request
