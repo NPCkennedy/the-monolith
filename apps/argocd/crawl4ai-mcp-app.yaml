@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crawl4ai-mcp
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: spencer-os
+  source:
+    repoURL: https://github.com/NPCkennedy/the-monolith
+    targetRevision: main
+    path: apps/crawl4ai-mcp
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=false

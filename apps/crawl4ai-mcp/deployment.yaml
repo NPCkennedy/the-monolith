@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawl4ai-mcp
+  namespace: spencer-os
+  labels:
+    app: crawl4ai-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawl4ai-mcp
+  template:
+    metadata:
+      labels:
+        app: crawl4ai-mcp
+    spec:
+      enableServiceLinks: false
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-worker2
+      containers:
+        - name: crawl4ai-mcp
+          image: ghcr.io/npckennedy/crawl4ai-mcp:0.7.1
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: MCP_TRANSPORT
+              value: "http"
+            - name: MCP_HOST
+              value: "0.0.0.0"
+            - name: MCP_PORT
+              value: "8000"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 45
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crawl4ai-mcp
+  namespace: spencer-os
+  labels:
+    app: crawl4ai-mcp
+spec:
+  selector:
+    app: crawl4ai-mcp
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
