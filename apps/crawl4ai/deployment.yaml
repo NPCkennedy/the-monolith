@@ -28,13 +28,11 @@ spec:
                       - k3s-worker2
       containers:
         - name: crawl4ai
-          image: unclecode/crawl4ai:latest  
+          image: unclecode/crawl4ai:latest
           ports:
             - containerPort: 11235
               name: http
           env:
-            - name: HOST
-              value: "0.0.0.0"
             - name: CRAWL4AI_API_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -45,33 +43,24 @@ spec:
               cpu: 250m
               memory: 512Mi
             limits:
-              memory: 2Gi        
+              memory: 2Gi
           volumeMounts:
             - name: dshm
-              mountPath: /dev/shm 
+              mountPath: /dev/shm
+            - name: config
+              mountPath: /app/config.yml
+              subPath: config.yml
           livenessProbe:
             httpGet:
               path: /
               port: 11235
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 30
       volumes:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 1Gi         
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: crawl4ai
-  namespace: spencer-os
-  labels:
-    app: crawl4ai
-spec:
-  selector:
-    app: crawl4ai
-  ports:
-    - port: 11235
-      targetPort: 11235
-      name: http
+            sizeLimit: 1Gi
+        - name: config
+          configMap:
+            name: crawl4ai-config
