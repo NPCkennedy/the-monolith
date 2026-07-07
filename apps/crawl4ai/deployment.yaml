@@ -15,6 +15,7 @@ spec:
       labels:
         app: crawl4ai
     spec:
+      enableServiceLinks: false
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
