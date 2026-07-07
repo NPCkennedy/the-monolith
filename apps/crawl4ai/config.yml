@@ -5,7 +5,7 @@ app:
   # Loopback by default. Exposing on 0.0.0.0 requires a credential
   # (CRAWL4AI_API_TOKEN); the startup auth guard refuses an open non-loopback
   # bind without one. Put a TLS-terminating reverse proxy in front for exposure.
-  host: "0.0.0.0"
+  host: "127.0.0.1"
   port: 11235
   reload: False
   workers: 1
