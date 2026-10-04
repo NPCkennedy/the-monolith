@@ -9,7 +9,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate
+    type: Recreate   # RWO volume: the old pod must release it before the new one starts
   selector:
     matchLabels:
       app: graphiti-mcp
@@ -19,29 +19,18 @@ spec:
         app: graphiti-mcp
         app.kubernetes.io/part-of: spencer-os
     spec:
-      # Same as Neo4j — prevents K8s service-link env vars from polluting
-      # the container's environment
+      # Prevents K8s service-link env vars from polluting the container's environment
       enableServiceLinks: false
       containers:
         - name: graphiti-mcp
-          # The real image name is zepai/knowledge-graph-mcp (not graphiti-mcp).
-          # Pinned version — graphiti is pre-1.0, breaking changes likely on bumps.
+          # Runs graphiti-mcp plus an embedded FalkorDB; data lives in /var/lib/falkordb/data.
+          # Pinned: graphiti is pre-1.0, breaking changes likely on bumps.
           image: zepai/knowledge-graph-mcp:1.0.1-graphiti-0.23.1
           ports:
             - containerPort: 8000
               name: mcp
           env:
-            # Neo4j connection — cross-namespace DNS
-            - name: NEO4J_URI
-              value: "bolt://neo4j.neo4j.svc.cluster.local:7687"
-            - name: NEO4J_USER
-              value: "neo4j"
-            - name: NEO4J_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: graphiti-config
-                  key: NEO4J_PASSWORD
-            # LLM for entity extraction — point at OpenRouter
+            # LLM for entity extraction — OpenRouter
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -49,22 +38,23 @@ spec:
                   key: OPENAI_API_KEY
             - name: OPENAI_BASE_URL
               value: "https://openrouter.ai/api/v1"
-            # Use Haiku for entity extraction — much cheaper than Sonnet,
-            # extraction is a bounded task that doesn't need deep reasoning
             - name: MODEL_NAME
               value: "anthropic/claude-haiku-4-5"
             - name: EMBEDDER_MODEL_NAME
               value: "openai/text-embedding-3-small"
-            # Use the same group_id across all writes — single-user system
-            - name: GROUP_ID
+            # This server reads GRAPHITI_GROUP_ID (GROUP_ID is ignored); one graph per group
+            - name: GRAPHITI_GROUP_ID
               value: "spencer"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/falkordb/data
           resources:
             requests:
               cpu: "100m"
-              memory: "256Mi"
+              memory: "512Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "1Gi"
           readinessProbe:
             tcpSocket:
               port: 8000
@@ -75,3 +65,7 @@ spec:
               port: 8000
             initialDelaySeconds: 60
             periodSeconds: 30
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: graphiti-data
