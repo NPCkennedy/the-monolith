@@ -1,18 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Two apps in one folder — Neo4j (database) and Graphiti MCP (memory protocol).
-# They're deployed together because they're meaningless apart.
+# Graphiti MCP (memory protocol). Neo4j removed 2026-10-04: Graphiti runs its own
+# embedded FalkorDB, and Neo4j held 0 nodes.
 #
-# Secrets (03-neo4j-secret.yaml, 07-graphiti-secret.yaml) are NOT listed here —
-# they contain real credentials and are applied manually with kubectl apply.
-# Never commit those files to git.
+# 07-graphiti-secret.yaml is NOT listed here: it holds real credentials and is
+# applied manually with kubectl apply. Never commit it.
 
 resources:
-  - 01-neo4j-namespace.yaml
-  - 02-neo4j-pvc.yaml
-  - 04-neo4j-deployment.yaml
-  - 05-neo4j-service.yaml
-  - 06-neo4j-ingressroute.yaml
   - 08-graphiti-deployment.yaml
   - 09-graphiti-service.yaml
