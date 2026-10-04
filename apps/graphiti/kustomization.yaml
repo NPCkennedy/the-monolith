@@ -10,3 +10,4 @@ kind: Kustomization
 resources:
   - 08-graphiti-deployment.yaml
   - 09-graphiti-service.yaml
+  - 10-graphiti-pvc.yaml

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: graphiti-data
+  namespace: spencer-os
+  labels:
+    app: graphiti-mcp
+    # Longhorn copies recurring-job labels from this PVC to its volume
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/spencer-os: enabled
+  annotations:
+    # Never let an Argo prune delete the memory data
+    argocd.argoproj.io/sync-options: Delete=false
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
