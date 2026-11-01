@@ -70,6 +70,8 @@ kubeScheduler:
   enabled: false
 prometheus:
   prometheusSpec:
+    retention: 10d
+    retentionSize: 8GB
     storageSpec:
       volumeClaimTemplate:
         spec:
