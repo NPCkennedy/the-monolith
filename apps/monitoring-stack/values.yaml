@@ -13,6 +13,7 @@ alertmanager:
         chat_id: 665878262
         parse_mode: HTML
         send_resolved: true
+        message: '{{ template "telegram.short" . }}'
     route:
       group_by:
       - alertname
@@ -33,6 +34,16 @@ alertmanager:
         receiver: "null"
     templates:
     - /etc/alertmanager/config/*.tmpl
+  templateFiles:
+    telegram.tmpl: |-
+      {{ define "telegram.short" }}
+      {{- range .Alerts -}}
+      {{ if eq .Status "firing" }}{{ if eq .Labels.severity "critical" }}🔴 CRITICAL{{ else }}⚠️ WARNING{{ end }}{{ else }}✅ RESOLVED{{ end }}: <b>{{ .Labels.alertname | html }}</b>{{ with .Labels.namespace }} ({{ . | html }}){{ end }}
+      {{ with .Annotations.summary }}{{ . | html }}
+      {{ end }}{{ with .Annotations.description }}{{ . | html }}
+      {{ end }}
+      {{ end -}}
+      {{ end }}
 defaultRules:
   disabled:
     KubeControllerManagerDown: true
