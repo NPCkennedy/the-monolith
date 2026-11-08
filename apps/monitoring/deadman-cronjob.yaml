@@ -1,0 +1,55 @@
+# Dead-man's switch (2026-11-08)
+# Every 2 minutes: if Alertmanager has the always-firing "Watchdog" alert
+# (= Prometheus scraping + rules evaluating + Alertmanager receiving), send a
+# heartbeat GET to the Uptime Kuma push monitor on the NAS.
+# If the cluster, Prometheus or Alertmanager dies, the heartbeats stop and Kuma
+# (outside the cluster) alerts via Telegram.
+# Kuma 1.23 push accepts GET only, so Alertmanager's own webhook (POST) cannot be used.
+# Push URL (with token) lives in Secret monitoring/alertmanager-deadman (key: url), created by hand, never in Git.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deadman-heartbeat
+  namespace: monitoring
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 60
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: heartbeat
+            image: curlimages/curl:8.5.0
+            env:
+            - name: KUMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-deadman
+                  key: url
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              AM="http://monitoring-kube-prometheus-alertmanager.monitoring.svc:9093/api/v2/alerts?active=true&filter=alertname%3D%22Watchdog%22"
+              if curl -sf --max-time 10 "$AM" | grep -q '"alertname":"Watchdog"'; then
+                curl -sf --max-time 10 "$KUMA_URL" >/dev/null
+                echo "heartbeat sent"
+              else
+                echo "Watchdog not firing - no heartbeat"
+                exit 1
+              fi
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                cpu: 100m
+                memory: 32Mi
