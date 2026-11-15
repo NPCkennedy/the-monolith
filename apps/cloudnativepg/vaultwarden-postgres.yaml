@@ -4,6 +4,7 @@ metadata:
   name: vaultwarden-db
   namespace: default
 spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.12-system-bookworm
   instances: 2
   storage:
     size: 2Gi
