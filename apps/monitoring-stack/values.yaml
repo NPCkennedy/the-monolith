@@ -66,6 +66,8 @@ defaultRules:
     etcdMembersDown: true
     etcdNoLeader: true
 grafana:
+  image:
+    tag: 13.1.10
   deploymentStrategy:
     type: Recreate
   persistence:
