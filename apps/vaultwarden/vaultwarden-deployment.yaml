@@ -4,6 +4,8 @@ metadata:
   name: vaultwarden
   namespace: default
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -13,9 +15,16 @@ spec:
       labels:
         app: vaultwarden
     spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: vaultwarden-data
       containers:
       - name: vaultwarden
         image: vaultwarden/server:1.37.4
+        volumeMounts:
+        - name: data
+          mountPath: /data
         ports:
         - containerPort: 80
         env:
