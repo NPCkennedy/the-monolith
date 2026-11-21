@@ -1,0 +1,72 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vaultwarden-pgdump
+  namespace: default
+  labels:
+    app: vaultwarden-pgdump
+spec:
+  schedule: "30 3 * * *"
+  timeZone: "Asia/Singapore"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 1800
+      template:
+        metadata:
+          labels:
+            app: vaultwarden-pgdump
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          containers:
+            - name: pgdump
+              image: ghcr.io/cloudnative-pg/postgresql:17.12-system-bookworm
+              env:
+                - name: PGHOST
+                  value: vaultwarden-db-rw
+                - name: PGDATABASE
+                  value: vaultwarden
+                - name: PGSSLMODE
+                  value: require
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: vaultwarden-db-credentials
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: vaultwarden-db-credentials
+                      key: password
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  set -euo pipefail
+                  f="/backup/vaultwarden-$(date -u +%Y%m%dT%H%MZ).dump"
+                  pg_dump --format=custom --no-owner --file="$f.tmp"
+                  mv "$f.tmp" "$f"
+                  echo "DUMP OK: $(ls -l "$f")"
+                  pg_restore --list "$f" > /dev/null && echo "ARCHIVE READABLE"
+                  find /backup -maxdepth 1 -name 'vaultwarden-*.dump' -mtime +14 -print -delete
+                  find /backup -maxdepth 1 -name '*.tmp' -mmin +120 -print -delete
+                  echo "KEPT: $(ls /backup/vaultwarden-*.dump | wc -l) dumps"
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backup
+              nfs:
+                server: 192.168.10.20
+                path: /volume1/pgdump
