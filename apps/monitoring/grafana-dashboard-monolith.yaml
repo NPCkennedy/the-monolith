@@ -772,7 +772,9 @@ data:
             }
           ],
           "fieldConfig": {
-            "defaults": {},
+            "defaults": {
+              "noValue": "Nothing firing"
+            },
             "overrides": []
           },
           "options": {
@@ -843,11 +845,12 @@ data:
           "options": {
             "legend": {
               "displayMode": "table",
-              "placement": "bottom",
+              "placement": "right",
               "calcs": [
                 "lastNotNull",
                 "max"
-              ]
+              ],
+              "width": 260
             },
             "tooltip": {
               "mode": "multi",
@@ -915,11 +918,12 @@ data:
           "options": {
             "legend": {
               "displayMode": "table",
-              "placement": "bottom",
+              "placement": "right",
               "calcs": [
                 "lastNotNull",
                 "max"
-              ]
+              ],
+              "width": 260
             },
             "tooltip": {
               "mode": "multi",
@@ -987,11 +991,12 @@ data:
           "options": {
             "legend": {
               "displayMode": "table",
-              "placement": "bottom",
+              "placement": "right",
               "calcs": [
                 "lastNotNull",
                 "max"
-              ]
+              ],
+              "width": 260
             },
             "tooltip": {
               "mode": "multi",
@@ -1057,11 +1062,12 @@ data:
           "options": {
             "legend": {
               "displayMode": "table",
-              "placement": "bottom",
+              "placement": "right",
               "calcs": [
                 "lastNotNull",
                 "max"
-              ]
+              ],
+              "width": 260
             },
             "tooltip": {
               "mode": "multi",
@@ -1229,7 +1235,7 @@ data:
             "uid": "${datasource}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 8,
             "w": 12,
             "x": 0,
             "y": 39
@@ -1299,7 +1305,7 @@ data:
             "uid": "${datasource}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 8,
             "w": 12,
             "x": 12,
             "y": 39
@@ -1311,8 +1317,8 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "expr": "sum by (volume) (longhorn_volume_robustness{state=\"healthy\"})",
-              "legendFormat": "{{volume}}",
+              "expr": "max by (pvc_namespace, pvc) (longhorn_volume_robustness{state=\"healthy\"})",
+              "legendFormat": "{{pvc_namespace}}/{{pvc}}",
               "instant": true,
               "range": false
             }
@@ -1337,13 +1343,28 @@ data:
                 "mode": "thresholds"
               },
               "max": 1,
-              "min": 0
+              "min": 0,
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": {
+                      "text": "healthy",
+                      "color": "green"
+                    },
+                    "0": {
+                      "text": "NOT HEALTHY",
+                      "color": "red"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": []
           },
           "options": {
             "orientation": "horizontal",
-            "displayMode": "gradient",
+            "displayMode": "basic",
             "showUnfilled": true,
             "reduceOptions": {
               "calcs": [
