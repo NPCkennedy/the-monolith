@@ -57,3 +57,42 @@ spec:
           annotations:
             summary: "{{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) was OOMKilled"
             description: "Container ran out of memory and restarted in the last 15 min. Check its memory limit/request."
+    - name: homelab-proxmox
+      rules:
+        - alert: ProxmoxThinPoolFilling
+          expr: pve_thinpool_data_percent > 85
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox thin pool {{ $labels.lv }} at {{ $value }}% data"
+            description: "local-lvm is filling. At 100 % VMs get I/O errors (2026-07-02 outage). Check snapshots, run fstrim -av in the VMs."
+        - alert: ProxmoxThinPoolCritical
+          expr: pve_thinpool_data_percent > 95
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Proxmox thin pool {{ $labels.lv }} at {{ $value }}% — VM I/O errors imminent"
+        - alert: ProxmoxThinPoolMetadataHigh
+          expr: pve_thinpool_metadata_percent > 80
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox thin pool {{ $labels.lv }} metadata at {{ $value }}%"
+        - alert: ProxmoxThinPoolMetricStale
+          expr: time() - node_textfile_mtime_seconds{file=~".*thinpool.prom"} > 600
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Thin pool metric not updated for {{ $value | humanizeDuration }} (cron /etc/cron.d/thinpool-metrics on the host)"
+        - alert: ProxmoxHostExporterDown
+          expr: up{role="proxmox-host"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cannot scrape the Proxmox host node exporter (192.168.0.100:9100)"
+            description: "Check prometheus-node-exporter on the host and the UCG policy k3s-to-proxmox-metrics."
