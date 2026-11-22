@@ -1,0 +1,59 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: homelab-core
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: homelab-backups
+      rules:
+        - alert: LonghornBackupStale
+          expr: (time() - longhorn_volume_last_backup_at > 26 * 3600) and (longhorn_volume_last_backup_at > 0)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }}: last backup {{ $value | humanizeDuration }} ago"
+            description: "No successful Longhorn backup to the NAS in over 26 h. Check the spencer-os-daily-backup job and the backup target."
+        - alert: VaultwardenDumpStale
+          expr: time() - kube_cronjob_status_last_successful_time{namespace="default", cronjob="vaultwarden-pgdump"} > 26 * 3600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Vaultwarden pg_dump: last success {{ $value | humanizeDuration }} ago"
+            description: "Nightly logical dump to NAS /volume1/pgdump has not succeeded in over 26 h."
+        - alert: VaultwardenDumpMissing
+          expr: absent(kube_cronjob_status_last_successful_time{namespace="default", cronjob="vaultwarden-pgdump"})
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Vaultwarden pg_dump CronJob has no successful run on record (deleted or never succeeded)"
+    - name: homelab-storage
+      rules:
+        - alert: LonghornVolumeDegraded
+          expr: longhorn_volume_robustness{state="degraded"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is degraded (missing a replica)"
+        - alert: LonghornVolumeFaulted
+          expr: longhorn_volume_robustness{state="faulted"} == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is FAULTED (no usable replica)"
+    - name: homelab-pods
+      rules:
+        - alert: PodOOMKilled
+          expr: (kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1) and on (namespace, pod, container) (increase(kube_pod_container_status_restarts_total[15m]) > 0)
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) was OOMKilled"
+            description: "Container ran out of memory and restarted in the last 15 min. Check its memory limit/request."
