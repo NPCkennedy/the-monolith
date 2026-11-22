@@ -10,7 +10,7 @@ spec:
   - name: memory
     rules:
     - alert: MemoryPressureWarning
-      expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 30
+      expr: (node_memory_MemAvailable_bytes{role!="proxmox-host"} / node_memory_MemTotal_bytes{role!="proxmox-host"}) * 100 < 30
       for: 2m
       labels:
         severity: warning
@@ -18,7 +18,7 @@ spec:
         summary: "Memory pressure warning on {{ $labels.instance }}"
         description: "Available memory is below 30% on {{ $labels.instance }}"
     - alert: MemoryPressureCritical
-      expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+      expr: (node_memory_MemAvailable_bytes{role!="proxmox-host"} / node_memory_MemTotal_bytes{role!="proxmox-host"}) * 100 < 15
       for: 2m
       labels:
         severity: critical

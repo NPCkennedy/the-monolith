@@ -17,3 +17,24 @@ spec:
           annotations:
             summary: "No thin pool metric from the Proxmox host for 10 min"
             description: "Check /usr/local/bin/thinpool-metrics.sh, /etc/cron.d/thinpool-metrics and /var/lib/prometheus/node-exporter/thinpool.prom on the host."
+        - alert: ProxmoxHostMemoryLow
+          expr: (node_memory_MemAvailable_bytes{role="proxmox-host"} / node_memory_MemTotal_bytes{role="proxmox-host"}) * 100 < 10
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox host memory available {{ $value | printf \"%.1f\" }}% (VMs allocated ~30 of 32 GB)"
+        - alert: ProxmoxHostMemoryCritical
+          expr: (node_memory_MemAvailable_bytes{role="proxmox-host"} / node_memory_MemTotal_bytes{role="proxmox-host"}) * 100 < 5
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Proxmox host memory available {{ $value | printf \"%.1f\" }}% — OOM risk for VMs"
+        - alert: ProxmoxHostSwapUsed
+          expr: (1 - node_memory_SwapFree_bytes{role="proxmox-host"} / node_memory_SwapTotal_bytes{role="proxmox-host"}) * 100 > 25
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox host swap {{ $value | printf \"%.0f\" }}% used"
