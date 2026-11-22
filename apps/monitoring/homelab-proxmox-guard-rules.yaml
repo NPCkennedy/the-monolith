@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: homelab-proxmox-guard
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: homelab-proxmox-guard
+      rules:
+        - alert: ProxmoxThinPoolMetricMissing
+          expr: absent(pve_thinpool_data_percent)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "No thin pool metric from the Proxmox host for 10 min"
+            description: "Check /usr/local/bin/thinpool-metrics.sh, /etc/cron.d/thinpool-metrics and /var/lib/prometheus/node-exporter/thinpool.prom on the host."
