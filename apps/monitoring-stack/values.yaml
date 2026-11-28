@@ -66,8 +66,6 @@ defaultRules:
     etcdMembersDown: true
     etcdNoLeader: true
 grafana:
-  image:
-    tag: 13.1.10
   admin:
     existingSecret: grafana-admin
     userKey: admin-user
