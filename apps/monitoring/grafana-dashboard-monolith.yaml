@@ -889,7 +889,7 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "expr": "100 * (1 - avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info))",
+              "expr": "100 * (1 - avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) max by (instance, nodename) (node_uname_info)))",
               "legendFormat": "{{nodename}}"
             }
           ],
@@ -949,7 +949,7 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info",
+              "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) max by (instance, nodename) (node_uname_info)",
               "legendFormat": "{{nodename}}"
             }
           ],
@@ -1022,7 +1022,7 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"}) * on(instance) group_left(nodename) node_uname_info",
+              "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"}) * on(instance) group_left(nodename) max by (instance, nodename) (node_uname_info)",
               "legendFormat": "{{nodename}}"
             }
           ],
@@ -1095,7 +1095,7 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "expr": "(node_load1 / on(instance) count by (instance) (node_cpu_seconds_total{mode=\"idle\"})) * on(instance) group_left(nodename) node_uname_info",
+              "expr": "(node_load1 / on(instance) count by (instance) (node_cpu_seconds_total{mode=\"idle\"})) * on(instance) group_left(nodename) max by (instance, nodename) (node_uname_info)",
               "legendFormat": "{{nodename}}"
             }
           ],
